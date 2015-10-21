@@ -1,4 +1,4 @@
-var Q = require('Q');
+var Q = require('q');
 var moment = require('moment');
 var mongoose = require('mongoose');
 mongoose.Promise = Q.promise;
