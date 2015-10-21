@@ -1,0 +1,13 @@
+{
+  "name": "tagTrends",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "continuation-local-storage": "^3.1.4",
+    "moment": "^2.10.6",
+    "mongoose": "^4.1.11",
+    "q": "^1.4.1",
+    "stackexchange": "^0.3.0",
+    "xml-stream": "^0.4.5"
+  }
+}
