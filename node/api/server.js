@@ -24,23 +24,14 @@ app.get('/api/metadata', function (req, res) {
 app.get('/api/tags', function (req, res) {
     req.query.matchName = req.query.matchName || '';
     var tagMatcher = new RegExp('.*' + req.query.matchName + '.*', 'i');
-    Tag.find({name: tagMatcher}, {name: true, totalQuestions: true})
-        .then(function (tags) {
-            tags.sort(function (tagA, tagB) {
-                if (tagA.totalQuestions > tagB.totalQuestions) {
-                    return -1;
-                }
-                if (tagA.totalQuestions < tagB.totalQuestions) {
-                    return 1;
-                }
-                return 0;
-            });
+    var query = Tag.find({name: tagMatcher}, {name: true, totalQuestions: true}).sort('-totalQuestions');
 
-            var max = parseInt(req.query.max);
-            if(max > 0) {
-                tags = tags.slice(0, max);
-            }
+    var max = parseInt(req.query.max);
+    if (max > 0) {
+        query = query.limit(max);
+    }
 
+    query.then(function (tags) {
             res.json(tags);
         })
         .catch(function (err) {
