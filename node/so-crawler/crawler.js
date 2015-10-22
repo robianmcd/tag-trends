@@ -10,8 +10,8 @@ const API_KEY = `usMySuYSR)CJxiyenPM)7Q((`;
 const firstQuestionDate = moment.utc('2008-08-01');
 //Monday Aug 4 2008
 const firstQuestionWeekDate = moment.utc('2008-08-04');
-//10 Minutes
-const WAIT_TIME_AFTER_ERROR_MS = 600000;
+//1 Hour
+const WAIT_TIME_AFTER_ERROR_MS = 3600000;
 //1 day
 const WAIT_TIME_AFTER_QUOTA_REACHED_MS = 86400000;
 //1 hour
@@ -56,6 +56,12 @@ function loadMoreQuestions(dbMetadata) {
     Q.denodeify(stackApi.questions.questions)(searchOptions)
         .then(
             function onSuccess(responseData) {
+                //for some reason error are making it through to the success handler so check for it here.
+                if(responseData.error_id) {
+                    console.error('Request to api returned error_id.', responseData);
+                    return WAIT_TIME_AFTER_ERROR_MS;
+                }
+
                 return processRemainingQuestion(dbMetadata, responseData.items, 0).then(function () {
                     //Just to be on the safe side wait at least 100ms before hitting the stack exchange api again to avoid being throttled.
                     //See http://api.stackexchange.com/docs/throttle for details
@@ -68,7 +74,8 @@ function loadMoreQuestions(dbMetadata) {
                     }
                     
                     var quotaWait = 0;
-                    if(responseData.quota_remaining <= 0) {
+                    //Leave 10 request so that if this crawler is restarted it won't result in an error from the call to the API.
+                    if(responseData.quota_remaining <= 10) {
                         console.info(`Quota reached. waiting for 1 day.`);
                         quotaWait = WAIT_TIME_AFTER_QUOTA_REACHED_MS;
                     }
