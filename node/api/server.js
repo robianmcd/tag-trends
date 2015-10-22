@@ -21,15 +21,16 @@ app.get('/api/metadata', function (req, res) {
         });
 });
 
-app.get('/api/matchingTags/:queryStr', function (req, res) {
-    var tagMatcher = new RegExp('.*' + req.params.queryStr + '.*', 'i');
+app.get('/api/tags', function (req, res) {
+    req.query.matchName = req.query.matchName || '';
+    var tagMatcher = new RegExp('.*' + req.query.matchName + '.*', 'i');
     Tag.find({name: tagMatcher}, {name: true, totalQuestions: true})
         .then(function (tags) {
             tags.sort(function (tagA, tagB) {
-                if (tagA.totalQuestions < tagB.totalQuestions) {
+                if (tagA.totalQuestions > tagB.totalQuestions) {
                     return -1;
                 }
-                if (tagA.totalQuestions > tagB.totalQuestions) {
+                if (tagA.totalQuestions < tagB.totalQuestions) {
                     return 1;
                 }
                 return 0;
