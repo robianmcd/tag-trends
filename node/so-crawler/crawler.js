@@ -117,6 +117,8 @@ function processRemainingQuestion(dbMetadata, questions, index) {
                     tag.usageByWeek[weekGroup].numQuestions++;
                 }
 
+                tag.totalQuestions++;
+
                 //WTF Mongoose?!?
                 tag.markModified('usageByMonth');
                 tag.markModified('usageByWeek');
@@ -142,6 +144,7 @@ function getTag(tagName) {
         if (!tag) {
             var newTag = new Tag({
                 name: tagName,
+                totalQuestions: 0,
                 usageByMonth: {},
                 usageByWeek: {}
             });

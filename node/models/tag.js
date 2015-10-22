@@ -4,6 +4,7 @@ var Schema = mongoose.Schema;
 var Tag = mongoose.model('Tag',
     new Schema({
         name: {type: String, required: true, unique: true},
+        totalQuestions: Number,
         usageByMonth: Object, //{numQuestions: Number}
         usageByWeek: Object //{numQuestions: Number}
     })
