@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="crawler" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="C:/Program Files/nodejs/node" path-to-js-file="crawler.js" working-dir="$PROJECT_DIR$/node/so-crawler">
+    <method />
+  </configuration>
+</component>

@@ -1,0 +1,18 @@
+{
+  "version": "v4",
+  "repo": "borisyankov/DefinitelyTyped",
+  "ref": "master",
+  "path": "typings",
+  "bundle": "typings/tsd.d.ts",
+  "installed": {
+    "moment/moment.d.ts": {
+      "commit": "b104f61d0e7527953274fef90fb0918c1e39611f"
+    },
+    "whatwg-fetch/whatwg-fetch.d.ts": {
+      "commit": "b104f61d0e7527953274fef90fb0918c1e39611f"
+    },
+    "moment/moment-node.d.ts": {
+      "commit": "b104f61d0e7527953274fef90fb0918c1e39611f"
+    }
+  }
+}

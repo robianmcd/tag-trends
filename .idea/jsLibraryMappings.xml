@@ -2,8 +2,7 @@
 <project version="4">
   <component name="JavaScriptLibraryMappings">
     <file url="file://$PROJECT_DIR$" libraries="{tagtrends node_modules}" />
-    <file url="PROJECT" libraries="{moment, mongoose-DefinitelyTyped, node-DefinitelyTyped}" />
+    <file url="PROJECT" libraries="{moment}" />
     <includedPredefinedLibrary name="ECMAScript 6" />
-    <includedPredefinedLibrary name="Node.js Core" />
   </component>
 </project>

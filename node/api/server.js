@@ -9,8 +9,6 @@ var Tag = require('../models/tag');
 var DbMetadata = require('../models/dbMetadata');
 var db = mongoose.connect('mongodb://localhost/tagTrends');
 
-app.use(express.static(__dirname + '/../../client'));
-
 app.get('/api/metadata', function (req, res) {
     DbMetadata.findOne({}, {firstPostDate: true, lastPostDate: true, _id: false})
         .then(function (metadata) {
@@ -51,6 +49,12 @@ app.get('/api/tagByName/:tagName', function (req, res) {
         .catch(function (err) {
             res.status(400).json(err);
         });
+});
+
+app.use(express.static(__dirname + '/../../build'));
+
+app.all('/*', function(req, res) {
+    res.sendFile('index.html', { root: __dirname + '/../../build' });
 });
 
 var server = app.listen(process.env.PORT || 3000, function () {
