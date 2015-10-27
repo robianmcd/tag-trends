@@ -16,6 +16,7 @@ const WAIT_TIME_AFTER_ERROR_MS = 3600000;
 const WAIT_TIME_AFTER_QUOTA_REACHED_MS = 86400000;
 //1 hour
 const WAIT_TIME_AFTER_UP_TO_DATE_MS = 3600000;
+const WAIT_TIME_BETWEEN_QUESTIONS = 10;
 
 var Tag = require('../models/tag');
 var DbMetadata = require('../models/dbMetadata');
@@ -27,7 +28,10 @@ DbMetadata.findOne()
         if (!dbMetadata) {
             dbMetadata = new DbMetadata({
                 firstPostDate: moment.utc(firstQuestionDate),
-                lastPostDate: moment.utc(firstQuestionDate)
+                lastPostDate: moment.utc(firstQuestionDate),
+                totalQuestions: 0,
+                usageByMonth: {},
+                usageByWeek: {}
             });
             return dbMetadata.save();
         } else {
@@ -136,7 +140,28 @@ function processRemainingQuestion(dbMetadata, questions, index) {
         return Promise.all(updateAllTags)
             .then(function () {
                 dbMetadata.lastPostDate = creationDate;
+                dbMetadata.totalQuestions++;
+
+                dbMetadata.usageByMonth = dbMetadata.usageByMonth || {};
+                dbMetadata.usageByMonth[monthGroup] = dbMetadata.usageByMonth[monthGroup] || {numQuestions: 0};
+                dbMetadata.usageByMonth[monthGroup].numQuestions++;
+
+                if(creationDate.isBefore(firstQuestionWeekDate) === false) {
+                    dbMetadata.usageByWeek = dbMetadata.usageByWeek || {};
+                    dbMetadata.usageByWeek[weekGroup] = dbMetadata.usageByWeek[weekGroup] || {numQuestions: 0};
+                    dbMetadata.usageByWeek[weekGroup].numQuestions++;
+                }
+
+                dbMetadata.markModified('usageByMonth');
+                dbMetadata.markModified('usageByWeek');
+
                 return dbMetadata.save();
+            })
+            //Give the cpu a break to handel more important tasks like responding to API requests
+            .then(function () {
+                return new Promise(function (resolve) {
+                    setTimeout(resolve, WAIT_TIME_BETWEEN_QUESTIONS);
+                });
             })
             .then(function () {
                 return processRemainingQuestion(dbMetadata, questions, index + 1);
