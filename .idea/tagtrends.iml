@@ -3,11 +3,11 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/node_modules" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="tagtrends node_modules" level="project" />
     <orderEntry type="library" name="moment" level="application" />
-    <orderEntry type="library" name="rx.lite" level="application" />
   </component>
 </module>

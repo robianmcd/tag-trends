@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "angular2": "2.0.0-alpha.42",
+    "angular2": "2.0.0-alpha.44",
     "express": "^4.13.3",
     "gulp": "^3.9.0",
     "gulp-inject": "^3.0.0",
@@ -12,6 +12,7 @@
     "mongoose": "^4.1.11",
     "ng2-charts": "0.0.0",
     "q": "^1.4.1",
+    "rx": "^4.0.6",
     "stackexchange": "^0.3.0",
     "xml-stream": "^0.4.5"
   }
