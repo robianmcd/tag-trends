@@ -5,7 +5,7 @@ import {Api} from '../../services/api';
 import {Tag} from "../../models/tag";
 import Moment = moment.Moment;
 
-declare var Chart: any;
+declare var Chart:any;
 
 @Component({
     selector: 'app',
@@ -13,11 +13,13 @@ declare var Chart: any;
 })
 @View({
     template: `
-        <div>Hello World</div>
         <typeahead #typeahead [get-matches]="boundGetMatchingTags" (match-selected)="matchingTagSelected($event, typeahead)"></typeahead>
         <ul>
             <li *ng-for="#tag of selectedTags">
-                {{tag.name}}
+                <div>
+                    {{tag.name}}
+                </div>
+                <button (click)="removeTag(tag)">X</button>
             </li>
         </ul>
         <div style="width: 1000px;">
@@ -30,21 +32,21 @@ export class App {
 
     typeahead;
     chart;
-    tagSearchText: string;
-    selectedTags: Tag[] = [];
-    boundGetMatchingTags: Function;
+    tagSearchText:string;
+    selectedTags:Tag[] = [];
+    boundGetMatchingTags:Function;
 
 
-    constructor(private urlUtil: UrlUtil, private api: Api) {
+    constructor(private urlUtil:UrlUtil, private api:Api) {
         this.initializeAppFromQueryParams();
         this.boundGetMatchingTags = this.getMatchingTags.bind(this);
     }
 
     initializeAppFromQueryParams() {
-        var tagNames: string[] = this.urlUtil.getSearchParams()['tags'] || [];
+        var tagNames:string[] = this.urlUtil.getSearchParams()['tags'] || [];
 
         Promise.all(tagNames.map(tagName => this.api.getTagByName(tagName)))
-            .then((tags: Tag[]) => {
+            .then((tags:Tag[]) => {
                 this.selectedTags = tags;
             })
             .catch((err) => {
@@ -58,7 +60,7 @@ export class App {
     }
 
 
-    rebuildChart(tags: Tag[]) {
+    rebuildChart(tags:Tag[]) {
         var ctx = document.getElementById("myChart");
 
         const BASE_DATASET = {
@@ -112,7 +114,7 @@ export class App {
 
         var labels = [];
 
-        var datasets = tags.map((tag: Tag) => {
+        var datasets = tags.map((tag:Tag) => {
             var chartData = this.generateArray(moment('2008-08-01'), moment(), tag);
             labels = chartData.labels;
             var dataset = {};
@@ -163,7 +165,7 @@ export class App {
         })
     }
 
-    generateArray(startDate: Moment, endDate: Moment, tag: Tag) {
+    generateArray(startDate:Moment, endDate:Moment, tag:Tag) {
         var curDate = moment(startDate);
 
         var labels = [];
@@ -184,18 +186,30 @@ export class App {
         return {data: data, labels: labels};
     }
 
-    getMatchingTags(query: string) {
+    getMatchingTags(query:string) {
         return this.api.getMatchingTags(query);
     }
 
-    matchingTagSelected(tagName: string, typeahead: Typeahead) {
+    matchingTagSelected(tagName:string, typeahead:Typeahead) {
         this.api.getTagByName(tagName)
             .then((tag) => {
                 this.tagSearchText = '';
                 this.selectedTags.push(tag);
-                this.urlUtil.setSearchParam('tags', this.selectedTags.map(tag => tag.name), false);
-                this.rebuildChart(this.selectedTags);
+                this.handelSelectedTagChange();
                 typeahead.clear();
             })
+    }
+
+    removeTag(tag) {
+        var tagIndex = this.selectedTags.indexOf(tag);
+        if (tagIndex !== -1) {
+            this.selectedTags.splice(tagIndex, 1);
+            this.handelSelectedTagChange();
+        }
+    }
+
+    handelSelectedTagChange() {
+        this.urlUtil.setSearchParam('tags', this.selectedTags.map(tag => tag.name), false);
+        this.rebuildChart(this.selectedTags);
     }
 }
