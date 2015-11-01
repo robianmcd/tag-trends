@@ -84,6 +84,7 @@ div.awesomplete > ul > li[aria-selected="true"] {
 }
 
 div.awesomplete mark {
+    padding: 0;
     background: hsl(65, 100%, 50%);
 }
 

@@ -3,5 +3,6 @@ import {ROUTER_PROVIDERS} from 'angular2/router';
 
 import {bootstrap} from 'angular2/core';
 import {App} from "./components/app/app";
+import {UrlUtil} from './services/urlUtil';
 
-bootstrap(App, []);
+bootstrap(App);
