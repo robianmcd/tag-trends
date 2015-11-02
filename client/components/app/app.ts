@@ -5,13 +5,14 @@ import {Api} from '../../services/api';
 import {Tag} from "../../models/tag";
 import Moment = moment.Moment;
 
-declare var Chart:any;
+declare var c3:any;
 
 @Component({
     selector: 'app',
     providers: [UrlUtil, Api]
 })
 @View({
+    directives: [Typeahead, CORE_DIRECTIVES, FORM_DIRECTIVES],
     template: `
         <typeahead #typeahead [get-matches]="boundGetMatchingTags" (match-selected)="matchingTagSelected($event, typeahead)"></typeahead>
         <ul>
@@ -22,14 +23,12 @@ declare var Chart:any;
                 <button (click)="removeTag(tag)">X</button>
             </li>
         </ul>
-        <div style="width: 1000px;">
-            <canvas id="myChart"></canvas>
-        </div>
-    `,
-    directives: [Typeahead, CORE_DIRECTIVES, FORM_DIRECTIVES]
+        <div id="chart"></div>
+    `
+
 })
 export class App {
-
+    labels:string[];
     typeahead;
     chart;
     tagSearchText:string;
@@ -55,115 +54,84 @@ export class App {
                 this.selectedTags = [];
             })
             .then(() => {
-                this.rebuildChart(this.selectedTags);
+                this.labels = this.generateLabels(moment('2008-08-01'), moment());
+
+                this.chart = c3.generate({
+                    data: {
+                        x: 'x',
+                        xFormat: '%Y-%m', // 'xFormat' can be used as custom format of 'x'
+                        columns: []
+                    },
+                    axis: {
+                        x: {
+                            type: 'timeseries',
+                            tick: {
+                                fit: false,
+                                format: '%Y-%b'
+                            },
+                            padding: {left: 0, right: 0}
+                        },
+                        y: {
+                            show: false,
+                            padding: {top: 10, bottom: 0},
+                        }
+                    },
+                    legend: {
+                        show: false
+                    },
+                    tooltip: {
+                        format: {
+                            title: function (x) {
+                                return `# of Questions (${moment(x).format('MMM YYYY')})`
+                            }
+                        }
+                    },
+                    zoom: {
+                        enabled: true
+                    },
+                    point: {
+                        show: true,
+                        r: 0,
+                        focus: {
+                            expand: {
+                                r: 5
+                            }
+                        }
+                    },
+                    line: {
+                        step: {
+                            type: 'step'
+                        }
+                    }
+                });
+                this.selectedTags.forEach((tag) => {
+                    this.addTagToChart(tag);
+                });
             });
     }
 
+    addTagToChart(tag:Tag) {
+        var chartData = this.generateArray(moment('2008-08-01'), moment(), tag);
+        var series = (<any>[tag.name]).concat(chartData.data);
 
-    rebuildChart(tags:Tag[]) {
-        var ctx = document.getElementById("myChart");
-
-        const BASE_DATASET = {
-            // Boolean - if true fill the area under the line
-            fill: false,
-
-            // String - the color to fill the area under the line with if fill is true
-            backgroundColor: "rgba(220,220,220,0.2)",
-
-            // The properties below allow an array to be specified to change the value of the item at the given index
-
-            // String or array - Line color
-            borderColor: "rgba(220,220,220,1)",
-
-            // String - cap style of the line. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap
-            borderCapStyle: 'butt',
-
-            // Array - Length and spacing of dashes. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash
-            borderDash: [],
-
-            // Number - Offset for line dashes. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset
-            borderDashOffset: 0.0,
-
-            // String - line join style. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin
-            borderJoinStyle: 'miter',
-
-            // String or array - Point stroke color
-            pointBorderColor: "rgba(220,220,220,1)",
-
-            // String or array - Point fill color
-            pointBackgroundColor: "#fff",
-
-            // Number or array - Stroke width of point border
-            pointBorderWidth: 1,
-
-            // Number or array - Radius of point when hovered
-            pointHoverRadius: 5,
-
-            // String or array - point background color when hovered
-            pointHoverBackgroundColor: "rgba(220,220,220,1)",
-
-            // Point border color when hovered
-            pointHoverBorderColor: "rgba(220,220,220,1)",
-
-            // Number or array - border width of point when hovered
-            pointHoverBorderWidth: 2,
-
-            // String - If specified, binds the dataset to a certain y-axis. If not specified, the first y-axis is used.
-            yAxisID: "y-axis-1",
-        };
-
-        var labels = [];
-
-        var datasets = tags.map((tag:Tag) => {
-            var chartData = this.generateArray(moment('2008-08-01'), moment(), tag);
-            labels = chartData.labels;
-            var dataset = {};
-            Object.assign(dataset, BASE_DATASET, {
-                label: tag.name,
-                data: chartData.data
-            });
-
-            return dataset;
+        //For some reason the labels can't be added to the chart until there is another column to add to the chart so
+        // /we're just adding it every time another tag is added.
+        this.chart.load({
+            columns: [
+                ['x'].concat(this.labels),
+                series
+            ],
+            colors: {}
         });
 
-        this.chart && this.chart.destroy();
-        this.chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: datasets
-            },
-            options: {
-                // Boolean - if true, line stack on top of each other along the y axis
-                stacked: false,
-
-                hover: {
-                    // String - We use a label hover mode since the x axis displays data by the index in the dataset
-                    mode: "label"
-                },
-
-                scales: {
-                    // Defines all of the x axes used in the chart. See the [scale documentation](#getting-started-scales) for details on the available options
-                    xAxes: [{
-                        // String - type of scale. Built in types are 'category' and 'linear'
-                        type: 'category',
-
-                        // String - id of the axis so that data can bind to it
-                        id: "x-axis-1", // need an ID so datasets can reference the scale
-                    }],
-
-                    // Defines all of the y axes used in the chart.
-                    // By default, the line chart uses a linear scale along the y axis
-                    yAxes: [{
-                        type: 'linear',
-
-                        // String - ID of the axis for data binding
-                        id: "y-axis-1",
-                    }],
-                }
-            }
-        })
     }
+
+    removeTagFromChart(tag:Tag) {
+        this.chart.unload({
+            ids: [tag.name]
+        });
+    }
+
 
     generateArray(startDate:Moment, endDate:Moment, tag:Tag) {
         var curDate = moment(startDate);
@@ -186,6 +154,19 @@ export class App {
         return {data: data, labels: labels};
     }
 
+    generateLabels(startDate:Moment, endDate:Moment) {
+        var curDate = moment(startDate);
+
+        var labels = [];
+
+        while (curDate.isBefore(endDate)) {
+            labels.push(curDate.format('YYYY-MM'));
+            curDate.add(1, 'month');
+        }
+
+        return labels;
+    }
+
     getMatchingTags(query:string) {
         return this.api.getMatchingTags(query);
     }
@@ -195,7 +176,8 @@ export class App {
             .then((tag) => {
                 this.tagSearchText = '';
                 this.selectedTags.push(tag);
-                this.handelSelectedTagChange();
+                this.updateTagsQueryParam();
+                this.addTagToChart(tag);
                 typeahead.clear();
             })
     }
@@ -204,12 +186,12 @@ export class App {
         var tagIndex = this.selectedTags.indexOf(tag);
         if (tagIndex !== -1) {
             this.selectedTags.splice(tagIndex, 1);
-            this.handelSelectedTagChange();
+            this.updateTagsQueryParam();
+            this.removeTagFromChart(tag);
         }
     }
 
-    handelSelectedTagChange() {
+    updateTagsQueryParam() {
         this.urlUtil.setSearchParam('tags', this.selectedTags.map(tag => tag.name), false);
-        this.rebuildChart(this.selectedTags);
     }
 }
