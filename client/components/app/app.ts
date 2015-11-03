@@ -36,76 +36,23 @@ import Moment = moment.Moment;
 
 })
 export class App {
-    labels: string[];
+    labels:string[];
     typeahead;
-    tagSearchText: string;
-    selectedTags: Tag[] = [];
-    boundGetMatchingTags: Function;
+    tagSearchText:string;
+    selectedTags:Tag[] = [];
+    boundGetMatchingTags:Function;
 
-    tagChart: TagChart;
-    @ViewChildren(TagChart) tagChartQueryList: QueryList<TagChart>;
+    tagChart:TagChart;
+    @ViewChildren(TagChart) tagChartQueryList:QueryList<TagChart>;
 
-    webStormFullCyclePallet = [
-        '#D47366',
-        '#6891D4',
-        '#E5F26D',//Originally '#C7D468',
-        '#AA68D4',
-        '#68D474',
-        '#D46891',
-        '#68C7D4',
-        '#D4AA68',
-        '#7468D4',
-        '#91D468',
-        '#D468C7',
-        '#68D4AA'
-    ];
-
-    //start at HSB(0,80%, 80%) and increase hue by 160.
-    vibrant160DegreeCyclePallet = [
-        '#CC2929',
-        '#29CC96',
-        '#CC2996',
-        '#29CC29',
-        '#9629CC',
-        '#96CC29',
-        '#2929CC',
-        '#CC9629',
-        '#2996CC'
-    ];
-
-    PrimaryColorPallet = [
-        '#E62D2E',
-        '#357DB7',
-        '#F6EA04',
-        '#794496',
-        '#029968',
-        '#F39927',
-        '#CA0789',
-        '#0BA0C2',
-        '#FCCC12',
-        '#5159A4',
-        '#97C230',
-        '#EC6E2A'
-    ];
-
-    defaultPallet = [
-        '#D6292A', //Originally 4th
-        '#2178b4',
-        '#ff8010',
-        '#2DA12D',
-        '#9568BD',
-        '#8D574C',
-        '#E378C2',
-        '#808080',
-        '#BCBD24',
-        '#19BECF'
-    ];
+    webStormFullCyclePallet = ['#D47366', '#6891D4', '#E5F26D', '#AA68D4', '#68D474', '#D46891', '#68C7D4', '#D4AA68', '#7468D4', '#91D468', '#D468C7', '#68D4AA'];
+    PrimaryColorPallet = ['#E62D2E', '#357DB7', '#F6EA04', '#794496', '#029968', '#F39927', '#CA0789', '#0BA0C2', '#FCCC12', '#5159A4', '#97C230', '#EC6E2A'];
 
     //Sample url to test colors: http://localhost:3000/?tags=[java,javascript,html,css,jquery,python,php,objective-c,asp.net-mvc,android,iphone,ruby-on-rails]
     colors = this.webStormFullCyclePallet;
 
 
-    constructor(private urlUtil: UrlUtil, private api: Api) {
+    constructor(private urlUtil:UrlUtil, private api:Api) {
         this.boundGetMatchingTags = this.getMatchingTags.bind(this);
     }
 
@@ -115,10 +62,10 @@ export class App {
     }
 
     initializeAppFromQueryParams() {
-        var tagNames: string[] = this.urlUtil.getSearchParams()['tags'] || [];
+        var tagNames:string[] = this.urlUtil.getSearchParams()['tags'] || [];
 
         Promise.all(tagNames.map(tagName => this.api.getTagByName(tagName)))
-            .then((tags: Tag[]) => {
+            .then((tags:Tag[]) => {
                 this.selectedTags = tags;
             })
             .catch((err) => {
@@ -135,11 +82,11 @@ export class App {
         return this.colors[index % this.colors.length]
     }
 
-    getMatchingTags(query: string) {
+    getMatchingTags(query:string) {
         return this.api.getMatchingTags(query);
     }
 
-    matchingTagSelected(tagName: string, typeahead: Typeahead) {
+    matchingTagSelected(tagName:string, typeahead:Typeahead) {
         this.api.getTagByName(tagName)
             .then((tag) => {
                 this.tagSearchText = '';
