@@ -1,15 +1,24 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
+    <inspection_tool class="CssUnusedSymbol" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="5">
+          <list size="13">
             <item index="0" class="java.lang.String" itemvalue="typeahead" />
             <item index="1" class="java.lang.String" itemvalue="[(ng-model)]" />
             <item index="2" class="java.lang.String" itemvalue="[get-matches]" />
             <item index="3" class="java.lang.String" itemvalue="#typeahead" />
             <item index="4" class="java.lang.String" itemvalue="(match-selected)" />
+            <item index="5" class="java.lang.String" itemvalue="[style.background]" />
+            <item index="6" class="java.lang.String" itemvalue="[style.background-color]" />
+            <item index="7" class="java.lang.String" itemvalue="[color]" />
+            <item index="8" class="java.lang.String" itemvalue="[tag]" />
+            <item index="9" class="java.lang.String" itemvalue="(remove)" />
+            <item index="10" class="java.lang.String" itemvalue="[colors]" />
+            <item index="11" class="java.lang.String" itemvalue="[tags]" />
+            <item index="12" class="java.lang.String" itemvalue="[style.border-color]" />
           </list>
         </value>
       </option>

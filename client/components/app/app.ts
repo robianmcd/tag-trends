@@ -1,51 +1,124 @@
-import {Component, View, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/core';
-import {Typeahead} from "../typeahead/typeahead";
+import {Component, View, ViewChildren, QueryList, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/core';
+
+import {Typeahead} from '../typeahead/typeahead';
+import {TagComponent} from '../tag/tag';
+import {TagChart} from '../tagChart/tagChart';
+
 import {UrlUtil} from '../../services/urlUtil';
 import {Api} from '../../services/api';
-import {Tag} from "../../models/tag";
-import Moment = moment.Moment;
 
-declare var c3:any;
+import {Tag} from '../../models/tag';
+
+import Moment = moment.Moment;
 
 @Component({
     selector: 'app',
     providers: [UrlUtil, Api]
 })
 @View({
-    directives: [Typeahead, CORE_DIRECTIVES, FORM_DIRECTIVES],
+    directives: [Typeahead, TagComponent, TagChart, CORE_DIRECTIVES, FORM_DIRECTIVES],
     template: `
-        <typeahead #typeahead [get-matches]="boundGetMatchingTags" (match-selected)="matchingTagSelected($event, typeahead)"></typeahead>
-        <ul>
-            <li *ng-for="#tag of selectedTags">
-                <div>
-                    {{tag.name}}
-                </div>
-                <button (click)="removeTag(tag)">X</button>
-            </li>
-        </ul>
-        <div id="chart"></div>
-    `
+        <div class="app">
+            <typeahead #typeahead [get-matches]="boundGetMatchingTags" (match-selected)="matchingTagSelected($event, typeahead)" class="tag-search"></typeahead>
+            <div>
+                <tag *ng-for="#tag of selectedTags; #i = index"
+                    [color]="getColor(i)" [tag]="tag" (remove)="removeTag(tag)">
+                </tag>
+            </div>
+            <tag-chart [colors]="colors" [tags]="selectedTags"></tag-chart>
+        </div>
+    `,
+    styles: [`
+        .app {
+            padding: 10px;
+        }
+    `]
 
 })
 export class App {
-    labels:string[];
+    labels: string[];
     typeahead;
-    chart;
-    tagSearchText:string;
-    selectedTags:Tag[] = [];
-    boundGetMatchingTags:Function;
+    tagSearchText: string;
+    selectedTags: Tag[] = [];
+    boundGetMatchingTags: Function;
+
+    tagChart: TagChart;
+    @ViewChildren(TagChart) tagChartQueryList: QueryList<TagChart>;
+
+    webStormFullCyclePallet = [
+        '#D47366',
+        '#6891D4',
+        '#E5F26D',//Originally '#C7D468',
+        '#AA68D4',
+        '#68D474',
+        '#D46891',
+        '#68C7D4',
+        '#D4AA68',
+        '#7468D4',
+        '#91D468',
+        '#D468C7',
+        '#68D4AA'
+    ];
+
+    //start at HSB(0,80%, 80%) and increase hue by 160.
+    vibrant160DegreeCyclePallet = [
+        '#CC2929',
+        '#29CC96',
+        '#CC2996',
+        '#29CC29',
+        '#9629CC',
+        '#96CC29',
+        '#2929CC',
+        '#CC9629',
+        '#2996CC'
+    ];
+
+    PrimaryColorPallet = [
+        '#E62D2E',
+        '#357DB7',
+        '#F6EA04',
+        '#794496',
+        '#029968',
+        '#F39927',
+        '#CA0789',
+        '#0BA0C2',
+        '#FCCC12',
+        '#5159A4',
+        '#97C230',
+        '#EC6E2A'
+    ];
+
+    defaultPallet = [
+        '#D6292A', //Originally 4th
+        '#2178b4',
+        '#ff8010',
+        '#2DA12D',
+        '#9568BD',
+        '#8D574C',
+        '#E378C2',
+        '#808080',
+        '#BCBD24',
+        '#19BECF'
+    ];
+
+    //Sample url to test colors: http://localhost:3000/?tags=[java,javascript,html,css,jquery,python,php,objective-c,asp.net-mvc,android,iphone,ruby-on-rails]
+    colors = this.webStormFullCyclePallet;
 
 
-    constructor(private urlUtil:UrlUtil, private api:Api) {
-        this.initializeAppFromQueryParams();
+    constructor(private urlUtil: UrlUtil, private api: Api) {
         this.boundGetMatchingTags = this.getMatchingTags.bind(this);
     }
 
+    afterViewInit() {
+        this.tagChart = this.tagChartQueryList.first;
+        this.initializeAppFromQueryParams();
+    }
+
     initializeAppFromQueryParams() {
-        var tagNames:string[] = this.urlUtil.getSearchParams()['tags'] || [];
+        var tagNames: string[] = this.urlUtil.getSearchParams()['tags'] || [];
 
         Promise.all(tagNames.map(tagName => this.api.getTagByName(tagName)))
-            .then((tags:Tag[]) => {
+            .then((tags: Tag[]) => {
                 this.selectedTags = tags;
             })
             .catch((err) => {
@@ -54,130 +127,25 @@ export class App {
                 this.selectedTags = [];
             })
             .then(() => {
-                this.labels = this.generateLabels(moment('2008-08-01'), moment());
-
-                this.chart = c3.generate({
-                    data: {
-                        x: 'x',
-                        xFormat: '%Y-%m', // 'xFormat' can be used as custom format of 'x'
-                        columns: []
-                    },
-                    axis: {
-                        x: {
-                            type: 'timeseries',
-                            tick: {
-                                fit: false,
-                                format: '%Y-%b'
-                            },
-                            padding: {left: 0, right: 0}
-                        },
-                        y: {
-                            show: false,
-                            padding: {top: 10, bottom: 0},
-                        }
-                    },
-                    legend: {
-                        show: false
-                    },
-                    tooltip: {
-                        format: {
-                            title: function (x) {
-                                return `# of Questions (${moment(x).format('MMM YYYY')})`
-                            }
-                        }
-                    },
-                    zoom: {
-                        enabled: true
-                    },
-                    point: {
-                        show: true,
-                        r: 0,
-                        focus: {
-                            expand: {
-                                r: 5
-                            }
-                        }
-                    },
-                    line: {
-                        step: {
-                            type: 'step'
-                        }
-                    }
-                });
-                this.selectedTags.forEach((tag) => {
-                    this.addTagToChart(tag);
-                });
+                this.tagChart.createForRange(moment('2008-08', 'YYYY-MM'), moment());
             });
     }
 
-    addTagToChart(tag:Tag) {
-        var chartData = this.generateArray(moment('2008-08-01'), moment(), tag);
-        var series = (<any>[tag.name]).concat(chartData.data);
-
-        //For some reason the labels can't be added to the chart until there is another column to add to the chart so
-        // /we're just adding it every time another tag is added.
-        this.chart.load({
-            columns: [
-                ['x'].concat(this.labels),
-                series
-            ],
-            colors: {}
-        });
-
+    getColor(index) {
+        return this.colors[index % this.colors.length]
     }
 
-    removeTagFromChart(tag:Tag) {
-        this.chart.unload({
-            ids: [tag.name]
-        });
-    }
-
-
-    generateArray(startDate:Moment, endDate:Moment, tag:Tag) {
-        var curDate = moment(startDate);
-
-        var labels = [];
-
-        while (curDate.isBefore(endDate)) {
-            labels.push(curDate.format('YYYY-MM'));
-            curDate.add(1, 'month');
-        }
-
-        var data = labels.map(function (label) {
-            if (tag.usageByMonth[label]) {
-                return tag.usageByMonth[label].numQuestions;
-            } else {
-                return 0;
-            }
-        });
-
-        return {data: data, labels: labels};
-    }
-
-    generateLabels(startDate:Moment, endDate:Moment) {
-        var curDate = moment(startDate);
-
-        var labels = [];
-
-        while (curDate.isBefore(endDate)) {
-            labels.push(curDate.format('YYYY-MM'));
-            curDate.add(1, 'month');
-        }
-
-        return labels;
-    }
-
-    getMatchingTags(query:string) {
+    getMatchingTags(query: string) {
         return this.api.getMatchingTags(query);
     }
 
-    matchingTagSelected(tagName:string, typeahead:Typeahead) {
+    matchingTagSelected(tagName: string, typeahead: Typeahead) {
         this.api.getTagByName(tagName)
             .then((tag) => {
                 this.tagSearchText = '';
                 this.selectedTags.push(tag);
                 this.updateTagsQueryParam();
-                this.addTagToChart(tag);
+                this.tagChart.addTagToChart(tag);
                 typeahead.clear();
             })
     }
@@ -187,7 +155,7 @@ export class App {
         if (tagIndex !== -1) {
             this.selectedTags.splice(tagIndex, 1);
             this.updateTagsQueryParam();
-            this.removeTagFromChart(tag);
+            this.tagChart.removeTagFromChart(tag);
         }
     }
 
