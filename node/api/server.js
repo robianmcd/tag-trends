@@ -7,10 +7,14 @@ var app = express();
 
 var Tag = require('../models/tag');
 var DbMetadata = require('../models/dbMetadata');
-var db = mongoose.connect('mongodb://localhost/tagTrends');
+mongoose.connect('mongodb://localhost/tagTrends');
+
+function escapeRegExp(str) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
 
 app.get('/api/metadata', function (req, res) {
-    DbMetadata.findOne({}, {firstPostDate: true, lastPostDate: true, _id: false})
+    DbMetadata.findOne({})
         .then(function (metadata) {
             res.json(metadata);
         })
@@ -21,7 +25,7 @@ app.get('/api/metadata', function (req, res) {
 
 app.get('/api/tags', function (req, res) {
     req.query.matchName = req.query.matchName || '';
-    var tagMatcher = new RegExp('.*' + req.query.matchName + '.*', 'i');
+    var tagMatcher = new RegExp('.*' + escapeRegExp(req.query.matchName) + '.*', 'i');
     var query = Tag.find({name: tagMatcher}, {name: true, totalQuestions: true}).sort('-totalQuestions');
 
     var max = parseInt(req.query.max);

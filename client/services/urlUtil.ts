@@ -7,7 +7,7 @@ export class UrlUtil {
 
         var searchObj = this.searchStrToObj(window.location.search);
 
-        if(value === null || value === undefined) {
+        if (value === null || value === undefined) {
             delete searchObj[key];
         } else {
             searchObj[key] = value;
@@ -15,11 +15,11 @@ export class UrlUtil {
 
         var url = urlWithoutSearch + this.searchObjToStr(searchObj);
 
-        if(reload) {
+        if (reload) {
             window.location.href = url;
         } else {
             if (history.pushState) {
-                window.history.pushState({path:url},'',url);
+                window.history.pushState({path: url}, '', url);
             } else {
                 console.error('cannot set search param without reloading the page in a browser that does not support history.pushState()');
                 window.location.href = url;
@@ -27,7 +27,7 @@ export class UrlUtil {
         }
     }
 
-    getSearchParams() : {[param: string]: any} {
+    getSearchParams(): {[param: string]: any} {
         return this.searchStrToObj(window.location.search);
     }
 
@@ -35,7 +35,7 @@ export class UrlUtil {
         var searchObj = {};
 
         if (searchStr) {
-            if(searchStr.indexOf('?') === 0) {
+            if (searchStr.indexOf('?') === 0) {
                 searchStr = searchStr.substring(1);
             }
 
@@ -48,17 +48,22 @@ export class UrlUtil {
                     //If the parameter is an array
                     if (value &&
                         value.indexOf('[') === 0 &&
-                        value.lastIndexOf(']') === value.length - 1)
-                    {
+                        value.lastIndexOf(']') === value.length - 1) {
                         //Convert the string into an array
-                        value = value.substr(1, value.length - 2).split(',');
+                        value = value
+                            .substr(1, value.length - 2)
+                            .split(',')
+                            .map(item => decodeURIComponent(item));
 
                         //The string "[]" with get converted into [""] but it should just be []
-                        if(value.length === 1 &&  value[0] === '') {
+                        if (value.length === 1 && value[0] === '') {
                             value = [];
                         }
+                    } else {
+                        value = decodeURIComponent(value);
                     }
-                    searchObj[key] = value || '';
+
+                    searchObj[decodeURIComponent(key)] = value || '';
                 });
 
         }
@@ -72,11 +77,17 @@ export class UrlUtil {
         for (var key in searchObj) {
             if (searchObj.hasOwnProperty(key)) {
                 var value = searchObj[key];
+
+                var safeKey = encodeURIComponent(key);
+                var safeValue;
                 if (this.isArray(value)) {
-                    value = `[${value.join(',')}]`;
+                    var valueStr = value.map(item => encodeURIComponent(item)).join(',');
+                    safeValue = `[${valueStr}]`;
+                } else {
+                    safeValue = encodeURIComponent(value);
                 }
 
-                searchStr += `${key}=${value}`;
+                searchStr += `${safeKey}=${safeValue}`;
             }
         }
 

@@ -34,7 +34,7 @@ export class Typeahead {
             item: (text, userInput) => {
                 var htmlStr;
                 if(this.searchTerm) {
-                    htmlStr = text.replace(new RegExp(this.searchTerm, 'g'), `<mark>${this.searchTerm}</mark>`);
+                    htmlStr = text.replace(new RegExp(this.escapeRegExp(this.searchTerm), 'g'), `<mark>${this.searchTerm}</mark>`);
                 } else {
                     htmlStr = this.searchTerm;
                 }
@@ -95,6 +95,10 @@ export class Typeahead {
         this.selectedText = '';
         this.awesomplete.list = [];
         this.awesomplete.evaluate();
+    }
+
+    private escapeRegExp(str): string {
+        return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
     }
 
 }

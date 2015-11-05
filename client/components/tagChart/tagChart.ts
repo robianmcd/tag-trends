@@ -15,21 +15,24 @@ declare var c3:any;
     `
 })
 export class TagChart {
-    @Input() tags:Tag[];
-    @Input() colors:string[];
-
+    private tags:Tag[];
+    private colors:string[];
     private startDate:Moment;
     private endDate:Moment;
     private chart;
+    private dataField:string;
     private labels:string[];
 
     constructor() {
 
     }
 
-    createForRange(startDate, endDate) {
-        this.startDate = startDate;
-        this.endDate = endDate;
+    recreate(startDate:Moment, endDate:Moment, tags:Tag[], colors:string[], dataField:string) {
+        this.startDate = moment(startDate);
+        this.endDate = moment(endDate);
+        this.tags = tags.slice(0);
+        this.colors = colors.slice(0);
+        this.dataField = dataField;
 
         this.labels = this.generateLabels(this.startDate, this.endDate);
 
@@ -59,8 +62,20 @@ export class TagChart {
             },
             tooltip: {
                 format: {
-                    title: function (x) {
-                        return `# of Questions (${moment(x).format('MMM YYYY')})`
+                    title: (title) => {
+                        var date = moment(title).format('MMM YYYY');
+                        if (this.dataField === 'numQuestions') {
+                            return `# of Questions (${date})`
+                        } else {
+                            return `% of Total (${date})`
+                        }
+                    },
+                    value: (value) => {
+                        if (this.dataField === 'numQuestions') {
+                            return value;
+                        } else {
+                            return value.toPrecision(2) + '%';
+                        }
                     }
                 }
             },
@@ -78,47 +93,67 @@ export class TagChart {
                 }
             }
         });
-        this.tags.forEach((tag) => {
-            this.addTagToChart(tag);
-        });
+
+        this.updateTags(this.tags);
     }
 
     addTagToChart(tag:Tag) {
-        var numQuestionsArray = this.generateNumQuestionsArray(tag);
-        var series = (<any>[tag.name]).concat(numQuestionsArray);
+        this.tags.push(tag);
 
-        //For some reason the labels can't be added to the chart until there is another column to add to the chart so
-        // /we're just adding it every time another tag is added.
-        this.chart.load({
-            columns: [
-                ['x'].concat(this.labels),
-                series
-            ]
-        });
-        this.updateColors();
-
+        this.updateTags([tag]);
     }
 
+
     removeTagFromChart(tag:Tag) {
+        var tagIndex = this.tags.indexOf(tag);
+        if (tagIndex !== -1) {
+            this.tags.splice(tagIndex, 1);
+        }
+
         this.chart.unload({
             ids: [tag.name]
         });
+
         this.updateColors();
     }
 
-    updateColors() {
+    changeDataField(dataField) {
+        this.dataField = dataField;
+        this.updateTags(this.tags);
+    }
+
+    private updateTags(tags:Tag[]) {
+        var series = tags.map((tag) => {
+            var dataArray = this.generateDataArray(tag);
+            return (<any>[tag.name]).concat(dataArray);
+        });
+        series.push(['x'].concat(this.labels));
+
+        this.chart.load({
+            columns: series,
+            colors: this.getChartColorsArray()
+        });
+    }
+
+    private updateColors() {
+        this.chart.data.colors(this.getChartColorsArray());
+    }
+
+    private getChartColorsArray() {
         var colors = {};
         this.tags.forEach(
             (tag, index) => {
                 colors[tag.name] = this.colors[index];
-            });
-        this.chart.data.colors(colors);
+            }
+        );
+
+        return colors;
     }
 
-    private generateNumQuestionsArray(tag:Tag) {
-        return this.labels.map(function (label) {
+    private generateDataArray(tag:Tag) {
+        return this.labels.map((label) => {
             if (tag.usageByMonth[label]) {
-                return tag.usageByMonth[label].numQuestions;
+                return tag.usageByMonth[label][this.dataField];
             } else {
                 return 0;
             }
