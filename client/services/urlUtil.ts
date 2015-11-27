@@ -87,6 +87,10 @@ export class UrlUtil {
                     safeValue = encodeURIComponent(value);
                 }
 
+                if(searchStr !== '') {
+                    searchStr += '&';
+                }
+
                 searchStr += `${safeKey}=${safeValue}`;
             }
         }

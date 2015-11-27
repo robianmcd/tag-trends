@@ -45,7 +45,6 @@ export class App {
     relative: boolean = true;
     labels: string[];
     typeahead;
-    tagSearchText: string;
     selectedTags: Tag[] = [];
     boundGetMatchingTags: Function;
 
@@ -60,6 +59,11 @@ export class App {
 
     constructor(private urlUtil: UrlUtil, private api: Api) {
         this.boundGetMatchingTags = this.getMatchingTags.bind(this);
+
+        //Occurs when the user clicks back or forward.
+        window.addEventListener("popstate", () => {
+            this.initializeAppFromQueryParams();
+        });
     }
 
     //Will be called after this.tagChart is initialized.
@@ -68,7 +72,14 @@ export class App {
     }
 
     initializeAppFromQueryParams() {
-        var tagNames: string[] = this.urlUtil.getSearchParams()['tags'] || [];
+        var searchParams = this.urlUtil.getSearchParams();
+        var tagNames: string[] = searchParams['tags'] || [];
+        if (searchParams['relative'] === 'true') {
+            this.relative = true;
+        }
+        else if (searchParams['relative'] === 'false') {
+            this.relative = false;
+        }
 
         Promise.all(tagNames.map(tagName => this.api.getTagByName(tagName)))
             .then((tags: Tag[]) => {
@@ -85,7 +96,7 @@ export class App {
     }
 
     getColor(index) {
-        return this.colors[index % this.colors.length]
+        return this.colors[index % this.colors.length];
     }
 
     getMatchingTags(query: string) {
@@ -93,14 +104,17 @@ export class App {
     }
 
     matchingTagSelected(tagName: string, typeahead: Typeahead) {
-        this.api.getTagByName(tagName)
-            .then((tag) => {
-                this.tagSearchText = '';
-                this.selectedTags.push(tag);
-                this.updateTagsQueryParam();
-                this.tagChart.addTagToChart(tag);
-                typeahead.clear();
-            })
+        typeahead.clear();
+
+        //If the tag hasn't already been added.
+        if (this.selectedTags.some(tag => tag.name === tagName) === false) {
+            this.api.getTagByName(tagName)
+                .then((tag) => {
+                    this.selectedTags.push(tag);
+                    this.updateTagsQueryParam();
+                    this.tagChart.addTagToChart(tag);
+                })
+        }
     }
 
     removeTag(tag) {
@@ -118,6 +132,7 @@ export class App {
 
     relativeClicked() {
         this.relative = !this.relative;
+        this.urlUtil.setSearchParam('relative', this.relative, false);
 
         this.tagChart.changeDataField(this.getDataField());
     }

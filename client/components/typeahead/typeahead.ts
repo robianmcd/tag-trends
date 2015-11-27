@@ -68,7 +68,8 @@ export class Typeahead {
             .map(text => text.trim())
             .filter(text => text.length > 0)
             .distinctUntilChanged()
-            .debounce(200)
+            //The server is very fast so debounce is likely not necessary.
+            //.debounce(200)
             .flatMapLatest((term) => {
                 return this.getMatches(term).then((matches) => {
                     this.searchTerm = term;

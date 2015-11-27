@@ -26,15 +26,37 @@ app.get('/api/metadata', function (req, res) {
 app.get('/api/tags', function (req, res) {
     req.query.matchName = req.query.matchName || '';
     var tagMatcher = new RegExp('.*' + escapeRegExp(req.query.matchName) + '.*', 'i');
-    var query = Tag.find({name: tagMatcher}, {name: true, totalQuestions: true}).sort('-totalQuestions');
+    var topMatchesQuery = Tag.find({name: tagMatcher}, {name: true, totalQuestions: true}).sort('-totalQuestions');
 
     var max = parseInt(req.query.max);
     if (max > 0) {
-        query = query.limit(max);
+        topMatchesQuery = topMatchesQuery.limit(max);
     }
 
-    query.then(function (tags) {
-            res.json(tags);
+    //Also search for an exact match and if one exists put it at the top of the list
+    var exactMatchQuery = Tag.findOne({name: req.query.matchName});
+
+    Q.all([topMatchesQuery, exactMatchQuery])
+        .then(function (results) {
+            var topMatches = results[0];
+            exactMatch = results[1];
+
+            if (exactMatch) {
+                //Remove it from the top matches if it's also in there
+                topMatches = topMatches.filter(function (match) {
+                    return match.name !== exactMatch.name;
+                });
+
+                //Insert the exactMatch at the front
+                topMatches.unshift(exactMatch);
+
+                if(max > 0) {
+                    //Remove the last element form the list if it exceeds the max
+                    topMatches.splice(max, 1);
+                }
+            }
+
+            res.json(topMatches);
         })
         .catch(function (err) {
             res.status(400).json(err);
@@ -57,8 +79,8 @@ app.get('/api/tagByName/:tagName', function (req, res) {
 
 app.use(express.static(__dirname + '/../../build'));
 
-app.all('/*', function(req, res) {
-    res.sendFile('index.html', { root: __dirname + '/../../build' });
+app.all('/*', function (req, res) {
+    res.sendFile('index.html', {root: __dirname + '/../../build'});
 });
 
 var server = app.listen(process.env.PORT || 3000, function () {

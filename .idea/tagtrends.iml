@@ -10,5 +10,10 @@
     <orderEntry type="library" name="tagtrends node_modules" level="project" />
     <orderEntry type="library" name="moment" level="application" />
     <orderEntry type="library" name="rx.lite" level="application" />
+    <orderEntry type="library" name="system.src" level="application" />
+    <orderEntry type="library" name="angular2.dev" level="application" />
+    <orderEntry type="library" name="fetch" level="application" />
+    <orderEntry type="library" name="moment" level="application" />
+    <orderEntry type="library" name="rx.lite" level="application" />
   </component>
 </module>

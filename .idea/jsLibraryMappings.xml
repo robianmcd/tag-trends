@@ -2,7 +2,7 @@
 <project version="4">
   <component name="JavaScriptLibraryMappings">
     <file url="file://$PROJECT_DIR$" libraries="{tagtrends node_modules}" />
-    <file url="PROJECT" libraries="{moment, rx.lite}" />
+    <file url="PROJECT" libraries="{angular2.dev, fetch, moment, rx.lite, system.src}" />
     <includedPredefinedLibrary name="ECMAScript 6" />
   </component>
 </project>
