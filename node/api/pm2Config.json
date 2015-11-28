@@ -2,6 +2,7 @@
   "name": "api",
   "script": "server.js",
   "env": {
-    "PORT": 80
+    "PORT": 80,
+    "STATIC_RESOURCES_FOLDER": "build-prod"
   }
 }

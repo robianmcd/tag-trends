@@ -5,21 +5,26 @@
   "dependencies": {
     "angular2": "2.0.0-alpha.45",
     "bootstrap": "^3.3.6",
+    "compression": "^1.6.0",
     "express": "^4.13.3",
-    "gulp": "^3.9.0",
-    "gulp-concat": "^2.6.0",
-    "gulp-inject": "^3.0.0",
-    "gulp-rev": "^6.0.1",
-    "gulp-rimraf": "^0.2.0",
-    "gulp-typescript": "^2.9.2",
-    "kerberos": "0.0.17",
     "moment": "^2.10.6",
     "mongoose": "^4.1.11",
     "ng2-charts": "0.0.0",
     "q": "^1.4.1",
     "rx": "^4.0.6",
     "stackexchange": "^0.3.0",
-    "systemjs": "^0.19.6",
+    "systemjs": "^0.19.6"
+  },
+  "devDependencies": {
+    "gulp-minify-css": "^1.2.1",
+    "gulp": "^3.9.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-inject": "^3.0.0",
+    "gulp-rev": "^6.0.1",
+    "gulp-rimraf": "^0.2.0",
+    "gulp-typescript": "^2.9.2",
+    "gulp-uglify": "^1.5.1",
+    "kerberos": "0.0.17",
     "xml-stream": "^0.4.5"
   }
 }

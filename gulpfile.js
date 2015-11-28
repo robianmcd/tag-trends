@@ -4,6 +4,8 @@ var concat = require('gulp-concat');
 var rev = require('gulp-rev');
 var inject = require('gulp-inject');
 var rimraf = require('gulp-rimraf');
+var uglify = require('gulp-uglify');
+var minifyCss = require('gulp-minify-css');
 
 var paths = {
     //Paths to source code
@@ -52,10 +54,10 @@ var paths = {
 
         }
     },
-    //Paths files in the build folder
     //TODO: try using gulp src base instead of making these relative to the build folder
-    devDist: {
-        base: 'build',
+    dist: {
+        devBase: 'build',
+        prodBase: 'build-prod',
         app: {
             scripts: ['**/*.js', '!vendor/**'],
             styles: ['**/*.css', '!vendor/**']
@@ -69,18 +71,6 @@ var paths = {
             'vendor/**/*.css',
             '**/*.css'
         ]
-    },
-    //Paths to files in the build-prod folder
-    prodDist: {
-        base: 'build-prod',
-        app: {
-            scripts: ['app*.js'],
-            styles: ['app*.css']
-        },
-        vendor: {
-            scripts: ['vendor*.js'],
-            styles: ['vendor*.css']
-        }
     }
 };
 
@@ -89,12 +79,8 @@ function clean(path) {
         .pipe(rimraf());
 }
 
-gulp.task('clean-app-scripts', function () {
-    return clean(paths.devDist.base + '/' + paths.devDist.app.scripts);
-});
-
-gulp.task('app-scripts', ['clean-app-scripts'], function () {
-    return gulp.src(paths.src.app.scripts)
+function appScripts(src) {
+    return gulp.src(src)
         .pipe(ts({
             module: 'system',
             moduleResolution: 'node',
@@ -102,51 +88,105 @@ gulp.task('app-scripts', ['clean-app-scripts'], function () {
             emitDecoratorMetadata: true,
             target: 'ES5'
         })).js
-        //.pipe(rev())
-        .pipe(gulp.dest(paths.devDist.base));
+}
+
+function buildIndex(distBase) {
+    var src = gulp.src(paths.dist.inject, {read: false, cwd: distBase});
+    return gulp.src('client/index.html')
+        .pipe(inject(src, {addRootSlash: false}))
+        .pipe(gulp.dest(distBase));
+}
+
+gulp.task('clean-app-scripts', function () {
+    return clean(paths.dist.devBase + '/' + paths.dist.app.scripts);
+});
+
+gulp.task('app-scripts', ['clean-app-scripts'], function () {
+    return appScripts(paths.src.app.scripts)
+        .pipe(gulp.dest(paths.dist.devBase));
+});
+
+gulp.task('clean-app-scripts-prod', function () {
+    return clean(paths.dist.prodBase + '/' + paths.dist.app.scripts);
+});
+
+gulp.task('app-scripts-prod', ['clean-app-scripts-prod'], function () {
+    return appScripts(paths.src.app.scripts)
+        .pipe(uglify())
+        .pipe(gulp.dest(paths.dist.prodBase));
 });
 
 gulp.task('clean-app-styles', function () {
-    return clean(paths.devDist.base + '/' + paths.devDist.app.styles);
+    return clean(paths.dist.devBase + '/' + paths.dist.app.styles);
 });
 
 gulp.task('app-styles', ['clean-app-styles'], function () {
     return gulp.src(paths.src.app.styles)
         .pipe(rev())
-        .pipe(gulp.dest(paths.devDist.base));
+        .pipe(gulp.dest(paths.dist.devBase));
+});
+
+gulp.task('clean-app-styles-prod', function () {
+    return clean(paths.dist.prodBase + '/' + paths.dist.app.styles);
+});
+
+gulp.task('app-styles-prod', ['clean-app-styles-prod'], function () {
+    return gulp.src(paths.src.app.styles)
+        .pipe(concat('app.css'))
+        .pipe(minifyCss())
+        .pipe(rev())
+        .pipe(gulp.dest(paths.dist.prodBase));
 });
 
 gulp.task('clean-vendor-scripts', function () {
-    return clean(paths.devDist.base + '/' + paths.devDist.vendor.scripts);
+    return clean(paths.dist.devBase + '/' + paths.dist.vendor.scripts);
 });
 
 gulp.task('vendor-scripts', ['clean-vendor-scripts'], function () {
-    return gulp.src(paths.src.vendor.dev.scripts)
+    return gulp.src(paths.src.vendor.prod.scripts)
         .pipe(concat('vendor.js')) //TODO get this working without concat. inject needs to inject in the right order.
         .pipe(rev())
-        .pipe(gulp.dest('build/vendor'));
+        .pipe(gulp.dest(paths.dist.devBase + '/vendor'));
+});
+
+gulp.task('clean-vendor-scripts-prod', function () {
+    return clean(paths.dist.prodBase + '/' + paths.dist.vendor.scripts);
+});
+
+gulp.task('vendor-scripts-prod', ['clean-vendor-scripts-prod'], function () {
+    return gulp.src(paths.src.vendor.prod.scripts)
+        .pipe(concat('vendor.js'))
+        .pipe(rev())
+        .pipe(gulp.dest(paths.dist.prodBase + '/vendor'));
 });
 
 gulp.task('clean-vendor-styles', function () {
-    return clean(paths.devDist.base + '/' + paths.devDist.vendor.styles);
+    return clean(paths.dist.devBase + '/' + paths.dist.vendor.styles);
 });
 
 gulp.task('vendor-styles', ['clean-vendor-styles'], function () {
     return gulp.src(paths.src.vendor.dev.styles)
-        .pipe(gulp.dest('build/vendor'));
+        .pipe(gulp.dest(paths.dist.devBase + '/vendor'));
+});
+
+gulp.task('clean-vendor-styles-prod', function () {
+    return clean(paths.dist.prodBase + '/' + paths.dist.vendor.styles);
+});
+
+gulp.task('vendor-styles-prod', ['clean-vendor-styles-prod'], function () {
+    return gulp.src(paths.src.vendor.prod.styles)
+        .pipe(concat('vendor.css'))
+        .pipe(minifyCss())
+        .pipe(rev())
+        .pipe(gulp.dest(paths.dist.prodBase + '/vendor'));
 });
 
 gulp.task('index', ['app-styles', 'vendor-scripts', 'vendor-styles'], function () {
-    var cssAndJsPath = [].concat(
-        paths.devDist.vendor.scripts,
-        paths.devDist.vendor.styles,
-        paths.devDist.app.scripts,
-        paths.devDist.app.styles
-    );
-    var src = gulp.src(paths.devDist.inject, {read: false, cwd: paths.devDist.base});
-    return gulp.src('client/index.html')
-        .pipe(inject(src, {addRootSlash: false}))
-        .pipe(gulp.dest('build'));
+    return buildIndex(paths.dist.devBase);
+});
+
+gulp.task('index-prod', ['app-styles-prod', 'vendor-scripts-prod', 'vendor-styles-prod'], function () {
+    return buildIndex(paths.dist.prodBase);
 });
 
 gulp.task('default', ['index', 'app-scripts'], function () {
@@ -155,3 +195,6 @@ gulp.task('default', ['index', 'app-scripts'], function () {
     gulp.watch(paths.src.vendor.scripts, ['index']);
     gulp.watch(paths.src.vendor.styles, ['index']);
 });
+
+gulp.task('build', ['index', 'app-scripts']);
+gulp.task('build-prod', ['index-prod', 'app-scripts-prod']);

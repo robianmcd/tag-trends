@@ -2,8 +2,10 @@ var Q = require('q');
 var moment = require('moment');
 var mongoose = require('mongoose');
 mongoose.Promise = Q.promise;
+var compression = require('compression');
 var express = require('express');
 var app = express();
+app.use(compression());
 
 var Tag = require('../models/tag');
 var DbMetadata = require('../models/dbMetadata');
@@ -12,6 +14,8 @@ mongoose.connect('mongodb://localhost/tagTrends');
 function escapeRegExp(str) {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 }
+
+var staticResourcesFolder = process.env.STATIC_RESOURCES_FOLDER || 'build';
 
 app.get('/api/metadata', function (req, res) {
     DbMetadata.findOne({})
@@ -77,10 +81,10 @@ app.get('/api/tagByName/:tagName', function (req, res) {
         });
 });
 
-app.use(express.static(__dirname + '/../../build'));
+app.use(express.static(__dirname + '/../../' + staticResourcesFolder));
 
 app.all('/*', function (req, res) {
-    res.sendFile('index.html', {root: __dirname + '/../../build'});
+    res.sendFile('index.html', {root: __dirname + '/../../' + staticResourcesFolder});
 });
 
 var server = app.listen(process.env.PORT || 3000, function () {
