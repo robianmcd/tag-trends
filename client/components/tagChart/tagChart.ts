@@ -63,6 +63,7 @@ export class TagChart {
                     padding: {left: 0, right: 0}
                 },
                 y: {
+                    min: 0,
                     show: false,
                     padding: {top: 10, bottom: 0},
                 }
