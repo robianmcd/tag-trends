@@ -58,7 +58,7 @@ export class TagChart {
                     type: 'timeseries',
                     tick: {
                         fit: false,
-                        format: '%Y-%b'
+                        format: '%b-%y'
                     },
                     padding: {left: 0, right: 0}
                 },
