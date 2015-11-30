@@ -40,8 +40,24 @@ import Moment = moment.Moment;
         </div>
     `,
     styles: [`
+        #tag-trends {
+            background-color: #ededed;
+            display: flex;
+            flex-flow: column;
+            height: 100%;
+        }
+
+        tt-header {
+            flex: 0 1 auto;
+        }
+
         .content {
+            flex: 1 1 auto;
             padding: 10px;
+            max-width: 768px;
+            width: 100%;
+            margin: auto;
+            background-color: white;
         }
     `]
 

@@ -36,12 +36,22 @@ export class TagChart {
 
         this.labels = this.generateLabels(this.startDate, this.endDate);
 
+
+
+        var chartHeight = Math.min(400, screen.height - 180);
+        chartHeight = Math.max(100, chartHeight);
+
+        console.log('height: ', screen.height, '  chart height: ' + chartHeight);
+
         this.chart = c3.generate({
             data: {
                 bindto: '#chart',
                 x: 'x',
                 xFormat: '%Y-%m', // 'xFormat' can be used as custom format of 'x'
                 columns: []
+            },
+            size: {
+                height: chartHeight
             },
             axis: {
                 x: {

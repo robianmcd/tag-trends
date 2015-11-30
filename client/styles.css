@@ -1,3 +1,7 @@
+html, body {
+    height: 100%;
+}
+
 .c3-line {
     stroke-width: 2px;
 }
@@ -16,10 +20,10 @@
     background-color: rgba(238, 238, 133, 0.47);
 }
 
-#tag-trends div.awesomplete > ul > li[aria-selected="true"] {
-    background-color: #D47366;
-}
-
 #tag-trends div.awesomplete > ul > li:hover {
     background-color: #f2dfdc;
+}
+
+#tag-trends div.awesomplete > ul > li[aria-selected="true"] {
+    background-color: #D47366;
 }
