@@ -13,7 +13,7 @@ import {Tag} from "../../models/tag";
                 <div class="tag-name">
                     {{tag.name}}
                 </div>
-                <div (click)="removeTag(tag)" class="remove-button">x</div>
+                <div (click)="removeTag(tag)" class="remove-button">✕</div>
             </div>
         </div>
     `,
@@ -35,7 +35,7 @@ import {Tag} from "../../models/tag";
         }
 
         .tag .remove-button {
-            padding: 4px 11px;
+            padding: 4px 9px;
             background-color: rgba(100,100,100,0.1);
             cursor: pointer;
             display: inline-block;

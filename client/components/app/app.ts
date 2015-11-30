@@ -1,5 +1,6 @@
 import {Component, View, ViewChild, QueryList, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/core';
 
+import {Header} from "../header/header";
 import {Typeahead} from '../typeahead/typeahead';
 import {TagComponent} from '../tag/tag';
 import {TagChart} from '../tagChart/tagChart';
@@ -11,31 +12,35 @@ import {Tag} from '../../models/tag';
 
 import Moment = moment.Moment;
 
+
 @Component({
     selector: 'app',
     providers: [UrlUtil, Api]
 })
 @View({
-    directives: [Typeahead, TagComponent, TagChart, CORE_DIRECTIVES, FORM_DIRECTIVES],
+    directives: [Typeahead, TagComponent, TagChart, Header, CORE_DIRECTIVES, FORM_DIRECTIVES],
     template: `
-        <div class="app">
-            <typeahead #typeahead [get-matches]="boundGetMatchingTags" (match-selected)="matchingTagSelected($event, typeahead)" class="tag-search"></typeahead>
-            <div>
-                <label>
-                    Relative:
-                     <input type="checkbox" [checked]="relative" (click)="relativeClicked()">
-                </label>
+        <div id="tag-trends">
+            <tt-header></tt-header>
+            <div class="content">
+                <typeahead #typeahead [get-matches]="boundGetMatchingTags" (match-selected)="matchingTagSelected($event, typeahead)" class="tag-search"></typeahead>
+                <div>
+                    <label>
+                        Relative:
+                         <input type="checkbox" [checked]="relative" (click)="relativeClicked()">
+                    </label>
+                </div>
+                <div>
+                    <tag *ng-for="#tag of selectedTags; #i = index"
+                        [color]="getColor(i)" [tag]="tag" (remove)="removeTag(tag)">
+                    </tag>
+                </div>
+                <tag-chart></tag-chart>
             </div>
-            <div>
-                <tag *ng-for="#tag of selectedTags; #i = index"
-                    [color]="getColor(i)" [tag]="tag" (remove)="removeTag(tag)">
-                </tag>
-            </div>
-            <tag-chart></tag-chart>
         </div>
     `,
     styles: [`
-        .app {
+        .content {
             padding: 10px;
         }
     `]

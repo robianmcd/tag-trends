@@ -11,3 +11,15 @@
     padding: 14px 16px;
     font-size: 17px;
 }
+
+#tag-trends div.awesomplete mark {
+    background-color: rgba(238, 238, 133, 0.47);
+}
+
+#tag-trends div.awesomplete > ul > li[aria-selected="true"] {
+    background-color: #D47366;
+}
+
+#tag-trends div.awesomplete > ul > li:hover {
+    background-color: #f2dfdc;
+}

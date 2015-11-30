@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="api-prod" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="C:/Program Files/nodejs/node" path-to-js-file="server.js" working-dir="$PROJECT_DIR$/node/api">
+    <envs>
+      <env name="STATIC_RESOURCES_FOLDER" value="build-prod" />
+    </envs>
+    <method />
+  </configuration>
+</component>
