@@ -34,9 +34,10 @@ export class Typeahead {
             item: (text, userInput) => {
                 var htmlStr;
                 if(this.searchTerm) {
-                    htmlStr = text.replace(new RegExp(this.escapeRegExp(this.searchTerm), 'g'), `<mark>${this.searchTerm}</mark>`);
+                    var lowerSearchTerm = this.searchTerm.toLowerCase();
+                    htmlStr = text.replace(new RegExp(this.escapeRegExp(lowerSearchTerm), 'gi'), `<mark>${lowerSearchTerm}</mark>`);
                 } else {
-                    htmlStr = this.searchTerm;
+                    htmlStr = text;
                 }
                 var element = document.createElement('li');
                 element.innerHTML = htmlStr;
