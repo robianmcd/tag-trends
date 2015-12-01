@@ -41,8 +41,6 @@ export class TagChart {
         var chartHeight = Math.min(400, screen.height - 180);
         chartHeight = Math.max(100, chartHeight);
 
-        console.log('height: ', screen.height, '  chart height: ' + chartHeight);
-
         this.chart = c3.generate({
             data: {
                 bindto: '#chart',

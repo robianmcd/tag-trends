@@ -12,7 +12,8 @@ var paths = {
     src: {
         app: {
             scripts: ['typings/**/*.ts', 'client/**/*.ts', '!**/client/lib/**'],
-            styles: ['client/**/*.css', '!**/client/lib/**']
+            styles: ['client/**/*.css', '!**/client/lib/**'],
+            images: ['client/**/*.ico', 'client/**/*.png', '!**/client/lib/**']
         },
         vendor: {
             dev: {
@@ -60,7 +61,8 @@ var paths = {
         prodBase: 'build-prod',
         app: {
             scripts: ['**/*.js', '!vendor/**'],
-            styles: ['**/*.css', '!vendor/**']
+            styles: ['**/*.css', '!vendor/**'],
+            images: ['**/*.ico', '**/*.png', '!vendor/**']
         },
         vendor: {
             scripts: ['vendor/**/*.js'],
@@ -143,7 +145,7 @@ gulp.task('clean-vendor-scripts', function () {
 });
 
 gulp.task('vendor-scripts', ['clean-vendor-scripts'], function () {
-    return gulp.src(paths.src.vendor.prod.scripts)
+    return gulp.src(paths.src.vendor.dev.scripts)
         .pipe(concat('vendor.js')) //TODO get this working without concat. inject needs to inject in the right order.
         .pipe(rev())
         .pipe(gulp.dest(paths.dist.devBase + '/vendor'));
@@ -181,6 +183,24 @@ gulp.task('vendor-styles-prod', ['clean-vendor-styles-prod'], function () {
         .pipe(gulp.dest(paths.dist.prodBase + '/vendor'));
 });
 
+gulp.task('clean-app-images', function() {
+    return clean(paths.dist.devBase, paths.dist.app.images);
+});
+
+gulp.task('app-images', ['clean-app-images'], function() {
+    return gulp.src(paths.src.app.images)
+        .pipe(gulp.dest(paths.dist.devBase));
+});
+
+gulp.task('clean-app-images-prod', function() {
+    return clean(paths.dist.prodBase, paths.dist.app.images);
+});
+
+gulp.task('app-images-prod', ['clean-app-images-prod'], function() {
+    return gulp.src(paths.src.app.images)
+        .pipe(gulp.dest(paths.dist.prodBase));
+});
+
 gulp.task('index', ['app-styles', 'vendor-scripts', 'vendor-styles'], function () {
     return buildIndex(paths.dist.devBase);
 });
@@ -189,13 +209,14 @@ gulp.task('index-prod', ['app-styles-prod', 'vendor-scripts-prod', 'vendor-style
     return buildIndex(paths.dist.prodBase);
 });
 
-gulp.task('default', ['index', 'app-scripts'], function () {
+gulp.task('default', ['index', 'app-scripts', 'app-images'], function () {
     gulp.watch(paths.src.app.scripts, ['app-scripts']);
+    gulp.watch(paths.src.app.images, ['app-images']);
     gulp.watch(paths.src.app.styles, ['index']);
     gulp.watch(paths.src.vendor.scripts, ['index']);
     gulp.watch(paths.src.vendor.styles, ['index']);
     gulp.watch('client/index.html', ['index']);
 });
 
-gulp.task('build', ['index', 'app-scripts']);
-gulp.task('build-prod', ['index-prod', 'app-scripts-prod']);
+gulp.task('build', ['index', 'app-scripts', 'app-images']);
+gulp.task('build-prod', ['index-prod', 'app-scripts-prod', 'app-images-prod']);
