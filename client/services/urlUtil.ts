@@ -32,6 +32,8 @@ export class UrlUtil {
     }
 
     private searchStrToObj(searchStr) {
+        searchStr = decodeURIComponent(searchStr);
+
         var searchObj = {};
 
         if (searchStr) {
@@ -52,18 +54,15 @@ export class UrlUtil {
                         //Convert the string into an array
                         value = value
                             .substr(1, value.length - 2)
-                            .split(',')
-                            .map(item => decodeURIComponent(item));
+                            .split(',');
 
                         //The string "[]" with get converted into [""] but it should just be []
                         if (value.length === 1 && value[0] === '') {
                             value = [];
                         }
-                    } else {
-                        value = decodeURIComponent(value);
                     }
 
-                    searchObj[decodeURIComponent(key)] = value || '';
+                    searchObj[key] = value || '';
                 });
 
         }
