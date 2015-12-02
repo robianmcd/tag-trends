@@ -1,4 +1,4 @@
-import {Component, View, ElementRef, Input, Output, EventEmitter, FORM_DIRECTIVES} from 'angular2/core';
+import {Component, View, ElementRef, Input, Output, EventEmitter} from 'angular2/core';
 
 declare var Awesomplete: any;
 
@@ -6,8 +6,7 @@ declare var Awesomplete: any;
     selector: 'typeahead'
 })
 @View({
-    template: '<input class="typeahead"/>',
-    directives: [FORM_DIRECTIVES]
+    template: '<input class="typeahead" autofocus placeholder="Enter a StackOverflow tag"/>'
 })
 export class Typeahead {
     @Input() getMatches;
@@ -93,9 +92,7 @@ export class Typeahead {
 
     clear() {
         this.input.value = '';
-        this.searchTerm = '';
         this.selectedText = '';
-        this.awesomplete.list = [];
         this.awesomplete.evaluate();
     }
 

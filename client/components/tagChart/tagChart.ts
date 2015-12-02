@@ -9,7 +9,6 @@ declare var c3:any;
     providers: []
 })
 @View({
-    directives: [],
     template: `
         <div id="chart"></div>
     `
@@ -152,7 +151,7 @@ export class TagChart {
         var colors = {};
         this.tags.forEach(
             (tag, index) => {
-                colors[tag.name] = this.colors[index];
+                colors[tag.name] = this.colors[index % this.colors.length];
             }
         );
 

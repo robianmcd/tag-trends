@@ -5,7 +5,7 @@
     <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="14">
+          <list size="16">
             <item index="0" class="java.lang.String" itemvalue="typeahead" />
             <item index="1" class="java.lang.String" itemvalue="[(ng-model)]" />
             <item index="2" class="java.lang.String" itemvalue="[get-matches]" />
@@ -20,6 +20,8 @@
             <item index="11" class="java.lang.String" itemvalue="[tags]" />
             <item index="12" class="java.lang.String" itemvalue="[style.border-color]" />
             <item index="13" class="java.lang.String" itemvalue="[checked]" />
+            <item index="14" class="java.lang.String" itemvalue="[hidden]" />
+            <item index="15" class="java.lang.String" itemvalue="[class.tag-has-been-selected]" />
           </list>
         </value>
       </option>

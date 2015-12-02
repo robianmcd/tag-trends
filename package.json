@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "angular2": "2.0.0-alpha.45",
+    "angular2": "2.0.0-alpha.46",
     "bootstrap": "^3.3.6",
     "compression": "^1.6.0",
     "express": "^4.13.3",

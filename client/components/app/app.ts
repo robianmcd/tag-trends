@@ -1,4 +1,4 @@
-import {Component, View, ViewChild, QueryList, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/core';
+import {Component, View, ViewChild, QueryList} from 'angular2/core';
 
 import {Header} from "../header/header";
 import {Typeahead} from '../typeahead/typeahead';
@@ -18,26 +18,35 @@ import Moment = moment.Moment;
     providers: [UrlUtil, Api]
 })
 @View({
-    directives: [Typeahead, TagComponent, TagChart, Header, CORE_DIRECTIVES, FORM_DIRECTIVES],
-    template: `
-        <div id="tag-trends">
-            <tt-header></tt-header>
-            <div class="content">
-                <typeahead #typeahead [get-matches]="boundGetMatchingTags" (match-selected)="matchingTagSelected($event, typeahead)" class="tag-search"></typeahead>
-                <div>
-                    <label>
-                        Relative:
-                         <input type="checkbox" [checked]="relative" (click)="relativeClicked()">
-                    </label>
+    directives: [Typeahead, TagComponent, TagChart, Header],
+    template: `<div id="tag-trends">
+    <tt-header></tt-header>
+    <div class="content" [class.tag-has-been-selected]="tagHasBeenSelected">
+        <div class="tag-search">
+            <typeahead #typeahead [get-matches]="boundGetMatchingTags" (match-selected)="matchingTagSelected($event, typeahead)"></typeahead>
+        </div>
+
+        <!--The tag chart renders outside it's container when it is hidden unless it is inside a div inside the content div that is never hidden... :( -->
+        <!--TLDR: don't remove this div-->
+        <div>
+            <div [hidden]="!selectedTags.length">
+                <div class="tags">
+                    <tag *ng-for="#tag of selectedTags; #i = index"
+                         [color]="getColor(i)" [tag]="tag" (remove)="removeTag(tag)">
+                    </tag>
                 </div>
                 <div>
-                    <tag *ng-for="#tag of selectedTags; #i = index"
-                        [color]="getColor(i)" [tag]="tag" (remove)="removeTag(tag)">
-                    </tag>
+                    <span class="heading">Questions over time</span>
+                    <label style="float:right">
+                        Relative:
+                        <input type="checkbox" [checked]="relative" (click)="relativeClicked()">
+                    </label>
                 </div>
                 <tag-chart></tag-chart>
             </div>
         </div>
+    </div>
+</div>
     `,
     styles: [`
         #tag-trends {
@@ -53,32 +62,51 @@ import Moment = moment.Moment;
 
         .content {
             flex: 1 1 auto;
-            padding: 10px;
             max-width: 768px;
             width: 100%;
             margin: auto;
+            padding: 10px;
+            padding-top: 20vh;
+            transition: all 0.4s ease;
+        }
+
+        .content.tag-has-been-selected {
+            padding-top: 20px;
             background-color: white;
+        }
+
+        .tag-search {
+            margin-bottom: 5px;
+        }
+
+        .tags {
+            margin-bottom: 20px;
+        }
+
+        .heading {
+            font-size: 20px;
         }
     `]
 
 })
 export class App {
-    relative: boolean = true;
-    labels: string[];
+    relative:boolean = true;
+    labels:string[];
     typeahead;
-    selectedTags: Tag[] = [];
-    boundGetMatchingTags: Function;
+    tagHasBeenSelected = false;
+    selectedTags:Tag[] = [];
+    boundGetMatchingTags:Function;
 
-    @ViewChild(TagChart) tagChart: TagChart;
+    @ViewChild(TagChart) tagChart:TagChart;
 
-    webStormFullCyclePallet = ['#D47366', '#6891D4', '#E5F26D', '#AA68D4', '#68D474', '#D46891', '#68C7D4', '#D4AA68', '#7468D4', '#91D468', '#D468C7', '#68D4AA'];
+    webStormFullCyclePallet = ['#D47366', '#6891D4', '#68D474', '#AA68D4', '#E5F26D', '#D46891', '#68C7D4', '#D4AA68', '#7468D4', '#91D468', '#D468C7', '#68D4AA'];
     PrimaryColorPallet = ['#E62D2E', '#357DB7', '#F6EA04', '#794496', '#029968', '#F39927', '#CA0789', '#0BA0C2', '#FCCC12', '#5159A4', '#97C230', '#EC6E2A'];
 
     //Sample url to test colors: http://localhost:3000/?tags=[java,javascript,html,css,jquery,python,php,objective-c,asp.net-mvc,android,iphone,ruby-on-rails]
-    colors = this.webStormFullCyclePallet;
+    colors = this.webStormFullCyclePallet ;
 
 
-    constructor(private urlUtil: UrlUtil, private api: Api) {
+    constructor(private urlUtil:UrlUtil, private api:Api) {
         this.boundGetMatchingTags = this.getMatchingTags.bind(this);
 
         //Occurs when the user clicks back or forward.
@@ -94,7 +122,11 @@ export class App {
 
     initializeAppFromQueryParams() {
         var searchParams = this.urlUtil.getSearchParams();
-        var tagNames: string[] = searchParams['tags'] || [];
+        var tagNames:string[] = searchParams['tags'] || [];
+        if(tagNames.length) {
+            this.tagHasBeenSelected = true;
+        }
+
         if (searchParams['relative'] === 'true') {
             this.relative = true;
         }
@@ -103,7 +135,7 @@ export class App {
         }
 
         Promise.all(tagNames.map(tagName => this.api.getTagByName(tagName)))
-            .then((tags: Tag[]) => {
+            .then((tags:Tag[]) => {
                 this.selectedTags = tags;
             })
             .catch((err) => {
@@ -120,11 +152,12 @@ export class App {
         return this.colors[index % this.colors.length];
     }
 
-    getMatchingTags(query: string) {
+    getMatchingTags(query:string) {
         return this.api.getMatchingTags(query);
     }
 
-    matchingTagSelected(tagName: string, typeahead: Typeahead) {
+    matchingTagSelected(tagName:string, typeahead:Typeahead) {
+        this.tagHasBeenSelected = true;
         typeahead.clear();
 
         //If the tag hasn't already been added.
