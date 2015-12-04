@@ -1,5 +1,7 @@
 import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
-import {Tag} from "../../models/tag";
+import {Tag} from '../../models/tag';
+import {Api} from '../../services/api';
+import {Metadata} from "../../models/metadata";
 import Moment = moment.Moment;
 
 declare var c3:any;
@@ -21,9 +23,10 @@ export class TagChart {
     private chart;
     private dataField:string;
     private labels:string[];
+    private metadata:Metadata;
 
-    constructor() {
-
+    constructor(api:Api) {
+        api.getMetadata().then(metadata => this.metadata = metadata);
     }
 
     recreate(startDate:Moment, endDate:Moment, tags:Tag[], colors:string[], dataField:string) {
@@ -34,7 +37,6 @@ export class TagChart {
         this.dataField = dataField;
 
         this.labels = this.generateLabels(this.startDate, this.endDate);
-
 
 
         var chartHeight = Math.min(400, screen.height - 180);
@@ -159,13 +161,32 @@ export class TagChart {
     }
 
     private generateDataArray(tag:Tag) {
-        return this.labels.map((label) => {
+        var lastPostDate;
+        if (this.metadata) {
+            lastPostDate = this.metadata.lastPostDate;
+        } else {
+            //If the metadata hasn't loaded yet just use today's date
+            lastPostDate = moment();
+        }
+
+        var startOfMonth = lastPostDate.startOf('month');
+        var daysSinceStartOfMonth = lastPostDate.diff(startOfMonth, 'days');
+
+        var dataArray = this.labels.map((label) => {
             if (tag.usageByMonth[label]) {
                 return tag.usageByMonth[label][this.dataField];
             } else {
                 return 0;
             }
         });
+
+        //If the data is too incomplete to show to current month then remove it from the array.
+        if ((daysSinceStartOfMonth < 7 && this.dataField === 'percentQuestions') ||
+            this.dataField === 'numQuestions') {
+            dataArray.pop();
+        }
+
+        return dataArray;
     }
 
     private generateLabels(startDate:Moment, endDate:Moment) {

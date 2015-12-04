@@ -27,3 +27,43 @@ html, body {
 #tag-trends div.awesomplete > ul > li[aria-selected="true"] {
     background-color: #D47366;
 }
+
+
+.mc-tooltip {
+    outline: none;
+}
+
+.mc-tooltip:hover {
+    text-decoration: none;
+}
+
+.mc-tooltip .mc-tooltip-content {
+    z-index: 10;
+    display: none;
+    padding: 14px 20px;
+    margin-top: -30px;
+    margin-left: 12px;
+    width: 300px;
+    line-height: 16px;
+}
+
+.mc-tooltip:hover .mc-tooltip-content {
+    display: inline;
+    position: absolute;
+    color: #111;
+    border: 1px solid #DCA;
+    background: #fffAF0;
+}
+
+.mc-tooltip-callout {
+    z-index: 20;
+    position: absolute;
+    top: 30px;
+    border: 0;
+    left: -12px;
+}
+
+.mc-tooltip .mc-tooltip-content {
+    border-radius: 4px;
+    box-shadow: 5px 5px 8px #CCC;
+}

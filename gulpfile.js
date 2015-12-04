@@ -13,7 +13,7 @@ var paths = {
         app: {
             scripts: ['typings/**/*.ts', 'client/**/*.ts', '!**/client/lib/**'],
             styles: ['client/**/*.css', '!**/client/lib/**'],
-            images: ['client/**/*.ico', 'client/**/*.png', '!**/client/lib/**']
+            images: ['client/**/*.ico', 'client/**/*.png', 'client/**/*.gif', '!**/client/lib/**']
         },
         vendor: {
             dev: {
@@ -62,7 +62,7 @@ var paths = {
         app: {
             scripts: ['**/*.js', '!vendor/**'],
             styles: ['**/*.css', '!vendor/**'],
-            images: ['**/*.ico', '**/*.png', '!vendor/**']
+            images: ['**/*.ico', '**/*.png', '**/*.gif', '!vendor/**']
         },
         vendor: {
             scripts: ['vendor/**/*.js'],

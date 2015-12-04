@@ -19,34 +19,43 @@ import Moment = moment.Moment;
 })
 @View({
     directives: [Typeahead, TagComponent, TagChart, Header],
-    template: `<div id="tag-trends">
-    <tt-header></tt-header>
-    <div class="content" [class.tag-has-been-selected]="tagHasBeenSelected">
-        <div class="tag-search">
-            <typeahead #typeahead [get-matches]="boundGetMatchingTags" (match-selected)="matchingTagSelected($event, typeahead)"></typeahead>
-        </div>
+    template: `
+        <div id="tag-trends">
+            <tt-header></tt-header>
+            <div class="content" [class.tag-has-been-selected]="tagHasBeenSelected">
+                <div class="tag-search">
+                    <typeahead #typeahead [get-matches]="boundGetMatchingTags" (match-selected)="matchingTagSelected($event, typeahead)"></typeahead>
+                </div>
 
-        <!--The tag chart renders outside it's container when it is hidden unless it is inside a div inside the content div that is never hidden... :( -->
-        <!--TLDR: don't remove this div-->
-        <div>
-            <div [hidden]="!selectedTags.length">
-                <div class="tags">
-                    <tag *ng-for="#tag of selectedTags; #i = index"
-                         [color]="getColor(i)" [tag]="tag" (remove)="removeTag(tag)">
-                    </tag>
-                </div>
+                <!--The tag chart renders outside it's container when it is hidden unless it is inside a div inside the content div that is never hidden... :( -->
+                <!--TLDR: don't remove this div-->
                 <div>
-                    <span class="heading">Questions over time</span>
-                    <label style="float:right">
-                        Relative:
-                        <input type="checkbox" [checked]="relative" (click)="relativeClicked()">
-                    </label>
+                    <div [hidden]="!selectedTags.length">
+                        <div class="tags">
+                            <tag *ng-for="#tag of selectedTags; #i = index"
+                                 [color]="getColor(i)" [tag]="tag" (remove)="removeTag(tag)">
+                            </tag>
+                        </div>
+                        <div>
+                            <span class="heading">Questions over time</span>
+                            <span class="mc-tooltip">
+                                <span  class="fa fa-question-circle" style="font-size:18px; color: grey;"></span>
+                                <span class="mc-tooltip-content">
+                                    <img class="mc-tooltip-callout" src="img/callout.gif" />
+                                    {{getTooltipText()}}
+                                </span>
+                            </span>
+
+                            <label style="float:right">
+                                Relative:
+                                <input type="checkbox" [checked]="relative" (click)="relativeClicked()">
+                            </label>
+                        </div>
+                        <tag-chart></tag-chart>
+                    </div>
                 </div>
-                <tag-chart></tag-chart>
             </div>
         </div>
-    </div>
-</div>
     `,
     styles: [`
         #tag-trends {
@@ -103,7 +112,7 @@ export class App {
     PrimaryColorPallet = ['#E62D2E', '#357DB7', '#F6EA04', '#794496', '#029968', '#F39927', '#CA0789', '#0BA0C2', '#FCCC12', '#5159A4', '#97C230', '#EC6E2A'];
 
     //Sample url to test colors: http://localhost:3000/?tags=[java,javascript,html,css,jquery,python,php,objective-c,asp.net-mvc,android,iphone,ruby-on-rails]
-    colors = this.webStormFullCyclePallet ;
+    colors = this.webStormFullCyclePallet;
 
 
     constructor(private urlUtil:UrlUtil, private api:Api) {
@@ -123,7 +132,7 @@ export class App {
     initializeAppFromQueryParams() {
         var searchParams = this.urlUtil.getSearchParams();
         var tagNames:string[] = searchParams['tags'] || [];
-        if(tagNames.length) {
+        if (tagNames.length) {
             this.tagHasBeenSelected = true;
         }
 
@@ -193,5 +202,17 @@ export class App {
 
     getDataField() {
         return this.relative ? 'percentQuestions' : 'numQuestions';
+    }
+
+    getTooltipText() {
+        var relativeDependantText;
+
+        if(this.relative) {
+            relativeDependantText = 'percentage';
+        } else {
+            relativeDependantText = 'number';
+        }
+
+        return `Shows the ${relativeDependantText} of StackOverflow questions asked each month with a given tag. This data comes from the Stack Exchange Network's API.`;
     }
 }
