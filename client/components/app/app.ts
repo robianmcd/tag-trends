@@ -99,7 +99,7 @@ import Moment = moment.Moment;
             top: 2px;
         }
 
-        @media screen and (min-width: 480px) {
+        @media screen and (min-width: 481px) {
             .content.tag-has-been-selected {
                 padding-top: 20px;
             }

@@ -28,7 +28,7 @@ html, body {
     background-color: #D47366;
 }
 
-@media screen and (min-width: 480px) {
+@media screen and (min-width: 481px) {
     .mobile-only {
         display: none;
     }
@@ -39,7 +39,6 @@ html, body {
         display: none;
     }
 }
-
 
 .mc-tooltip {
     outline: none;
