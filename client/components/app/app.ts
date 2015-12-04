@@ -37,8 +37,8 @@ import Moment = moment.Moment;
                             </tag>
                         </div>
                         <div>
-                            <span class="heading">Questions over time</span>
-                            <span class="mc-tooltip">
+                            <span class="heading desktop-only">Questions over time</span>
+                            <span class="mc-tooltip desktop-only">
                                 <span  class="fa fa-question-circle" style="font-size:18px; color: grey;"></span>
                                 <span class="mc-tooltip-content">
                                     <img class="mc-tooltip-callout" src="img/callout.gif" />
@@ -46,12 +46,15 @@ import Moment = moment.Moment;
                                 </span>
                             </span>
 
-                            <label style="float:right">
+                            <label class="relative-label">
                                 Relative:
-                                <input type="checkbox" [checked]="relative" (click)="relativeClicked()">
+                                <input class="relative-check-box" type="checkbox" [checked]="relative" (click)="relativeClicked()">
                             </label>
                         </div>
                         <tag-chart></tag-chart>
+                        <span class="stack-exchange-plug mobile-only">
+                            Powered by the Stack Exchange Network's API.
+                        </span>
                     </div>
                 </div>
             </div>
@@ -80,7 +83,6 @@ import Moment = moment.Moment;
         }
 
         .content.tag-has-been-selected {
-            padding-top: 20px;
             background-color: white;
         }
 
@@ -88,12 +90,38 @@ import Moment = moment.Moment;
             margin-bottom: 5px;
         }
 
-        .tags {
-            margin-bottom: 20px;
-        }
-
         .heading {
             font-size: 20px;
+        }
+
+        .relative-check-box {
+            position: relative;
+            top: 2px;
+        }
+
+        @media screen and (min-width: 480px) {
+            .content.tag-has-been-selected {
+                padding-top: 20px;
+            }
+
+            .tags {
+                margin-bottom: 20px;
+            }
+
+            .relative-label {
+                float: right;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .content.tag-has-been-selected {
+                padding-top: 5px;
+            }
+
+            .stack-exchange-plug {
+                font-size: 10px;
+                color: #999999;
+            }
         }
     `]
 
@@ -207,7 +235,7 @@ export class App {
     getTooltipText() {
         var relativeDependantText;
 
-        if(this.relative) {
+        if (this.relative) {
             relativeDependantText = 'percentage';
         } else {
             relativeDependantText = 'number';

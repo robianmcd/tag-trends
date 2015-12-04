@@ -28,6 +28,18 @@ html, body {
     background-color: #D47366;
 }
 
+@media screen and (min-width: 480px) {
+    .mobile-only {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .desktop-only {
+        display: none;
+    }
+}
+
 
 .mc-tooltip {
     outline: none;
