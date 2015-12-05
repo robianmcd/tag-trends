@@ -24,7 +24,7 @@ export class Typeahead {
             minChars: 1,
             autoFirst: true,
             //Maintains the original order
-            sort: (a,b) => {return -1},
+            sort: (a,b) => null,
             //Use the selected text instead of the user input so the selection does not change while the user is typing
             //or while the server is responding.
             filter: (text, userInput) => {
