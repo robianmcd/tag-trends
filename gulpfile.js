@@ -18,8 +18,8 @@ var paths = {
         vendor: {
             dev: {
                 scripts: [
-                    'node_modules/systemjs/dist/system.src.js',
                     'client/lib/systemConfig.js',
+                    'node_modules/es6-shim/es6-shim.js',
                     'node_modules/angular2/bundles/angular2.dev.js',
                     'node_modules/moment/moment.js',
                     'node_modules/rx/dist/rx.lite.js',
@@ -36,8 +36,8 @@ var paths = {
             },
             prod: {
                 scripts: [
-                    'node_modules/systemjs/dist/system.js',
                     'client/lib/systemConfig.js',
+                    'node_modules/es6-shim/es6-shim.min.js',
                     'node_modules/angular2/bundles/angular2.min.js',
                     'node_modules/moment/min/moment.min.js',
                     'node_modules/rx/dist/rx.lite.min.js',

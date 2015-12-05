@@ -153,7 +153,7 @@ export class App {
     }
 
     //Will be called after this.tagChart is initialized.
-    afterViewInit() {
+    ngAfterViewInit() {
         this.initializeAppFromQueryParams();
     }
 
