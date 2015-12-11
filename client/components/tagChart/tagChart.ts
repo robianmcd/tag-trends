@@ -169,7 +169,7 @@ export class TagChart {
             lastPostDate = moment();
         }
 
-        var startOfMonth = lastPostDate.startOf('month');
+        var startOfMonth = moment(lastPostDate).startOf('month');
         var daysSinceStartOfMonth = lastPostDate.diff(startOfMonth, 'days');
 
         var dataArray = this.labels.map((label) => {
