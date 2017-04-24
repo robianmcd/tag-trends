@@ -241,6 +241,6 @@ export class App {
             relativeDependantText = 'number';
         }
 
-        return `Shows the ${relativeDependantText} of StackOverflow questions asked each month with a given tag. This data comes from the Stack Exchange Network's API.`;
+        return `Shows the ${relativeDependantText} of Stack Overflow questions asked each month with a given tag. This data comes from the Stack Exchange Network's API.`;
     }
 }

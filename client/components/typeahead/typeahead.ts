@@ -6,7 +6,7 @@ declare var Awesomplete: any;
     selector: 'typeahead'
 })
 @View({
-    template: '<input class="typeahead" autofocus placeholder="Enter a StackOverflow tag"/>'
+    template: '<input class="typeahead" autofocus placeholder="Enter a Stack Overflow tag"/>'
 })
 export class Typeahead {
     @Input() getMatches;
