@@ -11,7 +11,7 @@ import {Tag} from "../../models/tag";
         <div class="tag" [style.border-color]="color" [style.background-color]="color">
             <div class="tag-container">
                 <div class="tag-name">
-                    {{tag.name}}
+                    <a href="https://stackoverflow.com/tags/{{tag.name}}/info" target="_blank">{{tag.name}}</a>
                 </div>
                 <div (click)="removeTag(tag)" class="remove-button">✕</div>
             </div>
@@ -32,6 +32,11 @@ import {Tag} from "../../models/tag";
         .tag .tag-name {
             padding: 4px 0 4px 4px;
             display: inline-block;
+        }
+        
+        .tag .tag-name a {
+            color: #333;
+            text-decoration: none;
         }
 
         .tag .remove-button {
