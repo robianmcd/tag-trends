@@ -8,7 +8,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="tagtrends node_modules" level="project" />
     <orderEntry type="library" name="moment" level="application" />
     <orderEntry type="library" name="rx.lite" level="application" />
     <orderEntry type="library" name="system.src" level="application" />

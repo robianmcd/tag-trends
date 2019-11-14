@@ -32,8 +32,6 @@ export class UrlUtil {
     }
 
     private searchStrToObj(searchStr) {
-        searchStr = decodeURIComponent(searchStr);
-
         var searchObj = {};
 
         if (searchStr) {
@@ -48,17 +46,25 @@ export class UrlUtil {
                     var [key, value] = term.split('=');
 
                     //If the parameter is an array
-                    if (value &&
-                        value.indexOf('[') === 0 &&
-                        value.lastIndexOf(']') === value.length - 1) {
-                        //Convert the string into an array
-                        value = value
-                            .substr(1, value.length - 2)
-                            .split(',');
+                    if (value.indexOf('+') > -1) {
+                        value = value.split('+').map(part => decodeURIComponent(part));
+                    } else {
+                        value = decodeURIComponent(value);
 
-                        //The string "[]" with get converted into [""] but it should just be []
-                        if (value.length === 1 && value[0] === '') {
-                            value = [];
+                        //Support legacy array syntax. e.g. "[a,b,c]"
+                        if (value && value.indexOf('[') === 0) {
+                            value = value.substr(1);
+
+                            if(value.lastIndexOf(']') === value.length - 1) {
+                                value = value.substr(0, value.length - 1);
+                            }
+                            //Convert the string into an array
+                            value = value.split(',');
+
+                            //The string "[]" with get converted into [""] but it should just be []
+                            if (value.length === 1 && value[0] === '') {
+                                value = [];
+                            }
                         }
                     }
 
@@ -80,8 +86,7 @@ export class UrlUtil {
                 var safeKey = encodeURIComponent(key);
                 var safeValue;
                 if (this.isArray(value)) {
-                    var valueStr = value.map(item => encodeURIComponent(item)).join(',');
-                    safeValue = `[${valueStr}]`;
+                    safeValue = value.map(item => encodeURIComponent(item)).join('+');
                 } else {
                     safeValue = encodeURIComponent(value);
                 }
